@@ -19,11 +19,21 @@ class MoviesController < ApplicationController
 
     @all_ratings= Movie.all_ratings
     @ratings = params[:ratings]
+    @oldratings= session[:ratings]
     if (@ratings != nil)
       @ratings_to_show= @ratings
+    elsif (@oldratings != nil)
+      @ratings_to_show= @oldratings
     else
       @ratings_to_show= Hash[@all_ratings.map {|rating| [rating, rating]}]
     end
+
+    if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
+      session[:sort] = sort
+      session[:ratings] = @ratings_to_show
+      redirect_to :sort => sort, :ratings => @ratings_to_show and return
+    end
+
     @movies = Movie.where(rating: @ratings_to_show.keys).order(order)
 
   end
